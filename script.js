@@ -1,10 +1,24 @@
 document.getElementById('generate-email').addEventListener('click', () => {
-    const email = generateTempEmail();
-    document.getElementById('email-address').textContent = email;
-    // Aquí podrías agregar lógica para mostrar correos recibidos
+    fetch('https://tempmail-ruddy.vercel.app/generate-email')
+        .then(response => response.json())
+        .then(data => {
+            const email = data.email;
+            document.getElementById('email-address').textContent = email;
+            checkEmail(email);
+        });
 });
 
-function generateTempEmail() {
-    const randomString = Math.random().toString(36).substring(2, 15);
-    return `${randomString}@tempmail.com`;
+function checkEmail(email) {
+    setInterval(() => {
+        fetch(`https://tempmail-ruddy.vercel.app/get-email/${email}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.email) {
+                    document.getElementById('email-content').textContent = JSON.stringify(data.data);
+                }
+            })
+            .catch(() => {
+                document.getElementById('email-content').textContent = 'El correo ha expirado o no se encontró.';
+            });
+    }, 60000); // Revisa cada minuto
 }
